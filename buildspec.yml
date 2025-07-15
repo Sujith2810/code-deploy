@@ -1,0 +1,20 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin <account-id>.dkr.ecr.<your-region>.amazonaws.com
+  build:
+    commands:
+      - echo Build started
+      - docker build -t myapp .
+      - docker tag myapp:latest <account-id>.dkr.ecr.<your-region>.amazonaws.com/myapp:latest
+  post_build:
+    commands:
+      - echo Pushing to ECR...
+      - docker push <account-id>.dkr.ecr.<your-region>.amazonaws.com/myapp:latest
+artifacts:
+  files:
+    - appspec.yml
+    - scripts/run_docker.sh
