@@ -1,19 +1,25 @@
 version: 0.2
 
+env:
+  variables:
+    IMAGE_NAME: myapp
+
 phases:
   pre_build:
     commands:
-      - echo Logging in to Amazon ECR...
-      - aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin 010426082127.dkr.ecr.us-west-2.amazonaws.com
+      - echo Logging into Amazon ECR...
+      - aws --version
+      - $(aws ecr get-login --no-include-email --region us-west-2)
   build:
     commands:
-      - echo Build started
-      - docker build -t myapp .
-      - docker tag myapp:latest 010426082127.dkr.ecr.us-west-2.amazonaws.com/myapp:latest
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $IMAGE_NAME .
+      - docker tag $IMAGE_NAME:latest 010426082127.dkr.ecr.us-west-2.amazonaws.com/$IMAGE_NAME:latest
   post_build:
     commands:
-      - echo Pushing to ECR...
-      - docker push 010426082127.dkr.ecr.us-west-2.amazonaws.com/myapp:latest
+      - echo Pushing the Docker image...
+      - docker push 010426082127.dkr.ecr.us-west-2.amazonaws.com/$IMAGE_NAME:latest
 artifacts:
   files:
     - appspec.yml
